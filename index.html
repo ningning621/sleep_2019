@@ -1,0 +1,477 @@
+<html>
+<head>
+	<title>Spring 19 Sleep</title>
+	<meta charset="UTF-8">
+	<script src="https://d3js.org/d3.v5.min.js"></script>
+	<script src="//unpkg.com/d3-radial-axis"></script>
+	<link href="https://fonts.googleapis.com/css?family=Inconsolata&display=swap" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css?family=Montserrat:200,200i&display=swap" rel="stylesheet">
+</head>
+<body bgcolor= "#f8f8f8">
+	<div style="text-align: center;">
+		<h2 style="font-family: 'Inconsolata', monospace; padding-top: 50px; font-size: 40px;">Sleep patterns of 2019</h2>
+		<div style="margin: 0 auto; width: 1000; font-family: 'Montserrat', sans-serif; font-size: 12px; text-align: left; padding-top: 40px">
+			<h3>I started collecting data on my sleep habits about 3 years ago when I noticed that my sleep schedule was becoming increasingly
+			irregular. I had thought that by seeing my sleep patterns fall into disarray I would make a conscious effort to correct it.</h3>
+			<h3>And yet, here we are, 3 years later, with very little changes. I realized that sleep will always be something that I 
+			struggle to value, but I'm working on prioritizing it for the upcoming year.</h3>
+			<h3>Here's to more zzz's in 2020! 👏</h3>
+		</div>
+
+		<div height="600" width="1500" id="test">
+			<svg id="bar" height="600" width="1500"/>
+		</div>
+
+		<div style="margin: 0 auto; width: 1000; font-family: 'Montserrat', sans-serif; font-size: 12px; text-align: left; padding-bottom: 20px">
+			<h3>I took very different classes and had very different priorities between my spring and fall semesters at university. It's
+			interesting to see how my sleep schedule was more consistent in the spring and how I tried to skew my sleep times earlier in the fall. 
+			You can also catch glimpse of when my poor sleep habits relapsed in fall.</h3>
+			<h3>The cycle represents a 24 hour clock and each ring represents a singular day, starting from the center and growing outwards.</h3>
+		</div>
+
+		<div style="display: flex; flex-direction: row; justify-content: space-between; padding-left: 10%; padding-right: 10%">
+			<div>
+				<h3 style="font-family: 'Inconsolata', monospace; font-size: 20px;">Sophomore Spring 2019</h3>
+				<svg id="pie_spring" height="650" width="650"/>
+			</div>
+			<div>
+				<h3 style="font-family: 'Inconsolata', monospace; font-size: 20px;">Junior Fall 2019</h3>
+				<svg id="pie_fall" height="650" width="650"/>
+			</div>
+		</div>
+	</div>
+	<script>		
+		let PI = Math.PI;
+		let arcMin = 25;
+		let arcWidth = 2;
+		var sleepData;
+		var fullAwakeArr = [];
+
+		var margin = {top: 50, right: 0, bottom: 50, left: 0},
+		    width = 500 - margin.left - margin.right,
+		    height = 2000 - margin.top - margin.bottom;
+
+		let padding = 50;
+
+		const monthNames = ["January", "February", "March", "April", "May", "June",
+		  "July", "August", "September", "October", "November", "December"
+		];
+
+
+		// convert string of times into array
+		function splitDayData(str) {
+			return str.split(";").map(s => s.trim());
+		}
+
+		Date.prototype.getDOY = function() {
+		    var dayCount = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334];
+		    var mn = this.getMonth();
+		    var dn = this.getDate();
+		    var dayOfYear = dayCount[mn] + dn;
+		    return dayOfYear;
+		};
+
+		function convertTimeToFrac(str) {
+			switch(str) {
+				case "00":
+					return "0";
+					break;
+				case "15":
+					return "25";
+					break;
+				case "30":
+					return "50";
+					break;
+				case "45":
+					return "75";
+					break;
+				default:
+					break;
+			}
+		}
+
+		// convert time to value on pie
+		function stringToPie(str) {
+			var str = str.split(":");
+			return parseFloat(str[0] + "." + convertTimeToFrac(str[1]));
+		}
+
+		function calculateTotalHours(str) {
+			var times = str.split(";");
+			var total = 0;
+			for (var v in times) {
+				var time = times[v].split("-");
+				total += stringToPie(time[1]) - stringToPie(time[0]);
+			}
+			return total;
+		}
+
+		function calculateStdDev(data, avg) {
+			var totalSd = 0;
+			for (var i = 0; i < data.length; i++) {
+				var arr = splitDayData(data[i]["times"]);
+				var durationPerDay = arr.reduce(function(sum, value) {
+					return sum + stringToPie(value.split("-")[1]) - stringToPie(value.split("-")[0]);
+				}, 0);
+
+				totalSd = totalSd + Math.pow((durationPerDay - avg), 2);
+
+				// var squDiff = arr.map(x => {
+				// 	var cd = stringToPie(x.split("-")[1]) - stringToPie(x.split("-")[0]);
+				// 	var sd = Math.pow((cd - avg), 2);
+				// 	console.log(cd);
+				// 	return sd;
+				// });
+			}
+
+			return Math.sqrt(totalSd)/data.length;
+		}
+
+		const calculateData = (sleepData) => {
+			// calculate avg amt of sleep per day
+			var totalHours = 0;
+			// naps are defined as < 3h
+			var totalHoursMinusNaps = 0; 
+			var shutEyeCounter = 0;
+			var totalBedTime = 0;
+			var totalWakeTime = 0; 
+
+			var totalByMonth = {};
+			for (var i = 0; i < sleepData.length; i++) {
+				var timesArr = splitDayData(sleepData[i]["times"]);
+				var month = sleepData[i]["date"].split('/')[0];
+				if (!(month in totalByMonth)) {
+					totalByMonth[month] = new Array(24).fill(0);
+				}
+				timesArr.map(x => {
+					var currentDuration = stringToPie(x.split("-")[1]) - stringToPie(x.split("-")[0]);
+					totalHours = totalHours + currentDuration;
+					// if (currentDuration >= 3.0) {
+					// 	totalHoursMinusNaps = totalHoursMinusNaps + currentDuration; 
+					// }
+
+					// nap is defined as starting btw 12p-10p
+					if (stringToPie(x.split("-")[0]) < 12.0 || stringToPie(x.split("-")[0]) >= 22.0) {
+						totalHoursMinusNaps = totalHoursMinusNaps + currentDuration;
+					}
+
+					if (currentDuration >= 1.0) {
+						shutEyeCounter = shutEyeCounter + 1;
+					}
+
+					var endTime = stringToPie(x.split("-")[1])
+					var startTime = stringToPie(x.split("-")[0])
+
+					if (Math.floor(endTime) != 24) {
+						totalByMonth[month][Math.floor(endTime)] += (endTime - Math.floor(endTime));
+					} 
+
+					for (var i = Math.floor(endTime)-1; i > Math.floor(startTime); i--) {
+					totalByMonth[month][i] += 1;
+					}
+
+					totalByMonth[month][Math.floor(startTime)] += (1 - (startTime) + Math.floor(startTime));
+
+				});			
+			}
+			var avgPerDay = totalHours/sleepData.length;
+			var avgPerDaySd = calculateStdDev(sleepData, avgPerDay);
+			var avgPerDayMinusNaps = totalHoursMinusNaps/sleepData.length;
+			var avgPerShutEye = totalHours/shutEyeCounter;
+			console.log("Average Hours Per Day: " + avgPerDay);
+			console.log("Average SD: " + avgPerDaySd);
+			console.log("Average Hours Per Shut Eye: " + avgPerShutEye);
+			console.log("Average Hours Per Day (Minus Naps):" +  avgPerDayMinusNaps);
+		}
+
+		const requestPieData = async () => {
+			sleepData = await d3.csv("../sleep.csv");
+			console.log(sleepData);
+
+			drawPie(sleepData.slice(23, 139), "#pie_spring", "sleep_spring");
+			drawPie(sleepData.slice(240), "#pie_fall", "sleep_fall");
+			drawBarChart();
+			
+			// calculations
+			calculateData(sleepData.slice(23, 139));
+			calculateData(sleepData.slice(139, 240));
+			calculateData(sleepData.slice(240));
+
+		};
+
+		// creates array for awake times 
+		function addAwakeTime(obj) {
+			var timeStr = obj["times"].split(";").map(x => x.trim());
+			var awakeArr = [];
+			for (var i = 0; i < timeStr.length; i++) {
+				// time range is not the last one
+				if (i + 1 != timeStr.length) {
+					awakeArr.push(timeStr[i].split("-")[1] + "-" + timeStr[i+1].split("-")[0]);
+				} else {
+					if (timeStr[i].substring(5, 11) != "24:00") {
+						awakeArr.push(timeStr[i].split("-")[1] + "-24:00");
+					}
+				}
+			}
+
+			if (timeStr[0].substring(0, 4) != "00:00") {
+				awakeArr.push("00:00-" + timeStr[0].split("-")[0]);
+			}
+
+			var newObj = {
+				'date': obj["date"],
+				'times': awakeArr.join(";")
+			};
+			fullAwakeArr.push(newObj);
+		}
+
+		requestPieData();
+
+		function drawPie(data, pie_id, class_name) {
+			var ringCounter = 0;
+			// arc generator for each time
+			var arc = d3.arc()
+				.startAngle(function(d) {
+					var str = d.split("-");
+					return (stringToPie(str[0])/24 * 360 * PI / 180);
+				})
+				.endAngle(function(d) {
+					var str = d.split("-");
+					return (stringToPie(str[1])/24 * 360 * PI / 180);
+				})
+				.innerRadius(function(d, i) {
+					if (i == 0) ringCounter += 1;
+					return arcMin + ringCounter*arcWidth;
+				})
+				.outerRadius(function(d, i) {
+					return arcMin + (ringCounter+1)*arcWidth;
+				});
+
+			let sleepSvg = d3.select(pie_id)
+				.append('g')
+				.attr('class', class_name);
+
+			let allRings = sleepSvg.selectAll('g.' + class_name)
+				.data(data)
+				.enter();
+
+			var sleepPaths = allRings.selectAll('path')
+				.data(function (d, i) { 
+					addAwakeTime(d);
+					return splitDayData(d['times']); 
+				})
+				.enter()
+				.append('path')
+				.attr('d', arc)
+				.attr('transform', "translate(" + 325 + ", " + 325 + ")") // make sure to edit these values
+				.attr('fill', "#7DB8E8");
+
+			// reset ring counter for awake data
+			var ringCounter = 0;
+
+			let awakeSvg = d3.select(pie_id)
+				.append('g');
+
+			let allAwakeRings = awakeSvg.selectAll('g.' + class_name)
+				.data(fullAwakeArr)
+				.enter();
+
+			var awakePaths = allAwakeRings
+				.selectAll('path')
+				.data(function (d, i) { 
+					return splitDayData(d['times']); 
+				})
+				.enter()
+				.append('path')
+				.attr('d', arc)
+				.attr('transform', "translate(" + 325 + ", " + 325 + ")")
+				.attr('fill', "#e7e7e7");
+
+			// var textArc = d3.arc()
+			// 	.startAngle(0)
+			// 	.endAngle(2* PI)
+			// 	.outerRadius(arcMin + (ringCounter+10)*arcWidth)
+			// 	.innerRadius(arcMin + (ringCounter + 5)*arcWidth);
+
+			var axisScale = d3.scaleLinear()
+				.domain([0, 24])
+				.range([0, 2*Math.PI]);
+
+			d3.select(pie_id)
+				.append('g')
+				.call(d3.axisRadialOuter(
+					axisScale, 
+					arcMin + (ringCounter+5)*arcWidth)
+				.tickFormat(function(d) {
+					if (d == "24") return "";
+					return d + ":00";
+				})
+				).attr('transform', "translate(" + 325 + ", " + 325 + ")")
+				.style("opacity", 0.6)
+				.selectAll("text")
+					.style("font-family", "Inconsolata")
+			        .style("font-size", 12)
+			        .attr("text-anchor", function(d) {
+			        	if (axisScale(d) < Math.PI) return "start";
+			        	else return "end";
+			        });				
+
+				fullAwakeArr = [];
+		}
+
+		// flatten nested map
+		function modifyDataForBar(data) {
+			var temp = [];
+			for (var d in data) {
+				// haha too lazy to fix this bug
+				if (data[d][0] != "date") {
+					var times = splitDayData(data[d].times);
+					for (var t in times) {
+						var str = times[t].split("-");
+						var item = {
+							"date": data[d].date,
+							"time": [stringToPie(str[0]), stringToPie(str[1])]
+						}
+						temp.push(item);
+					}
+				}
+			}
+			
+			return temp;
+		}
+
+		function drawBarChart() {
+			let barSvg = d3.select('#bar')
+				.append('g')
+				.attr("transform", "translate(0, 50)");
+			let barData = modifyDataForBar(sleepData);
+
+			var x = d3.scaleTime()
+				.domain([new Date(barData[0]["date"]), new Date(barData[barData.length - 1]["date"])])
+				.range([0+padding, 1500-padding]);
+
+			var y = d3.scaleLinear()
+				.domain([0, 24])
+				.range([0, 500-padding]);
+
+			barSvg.selectAll(".bar")
+				.data(barData)
+				.enter()
+				.append("rect")
+				.attr("id", function(d) {
+					var temp = (d.date).split("/");
+					return "bar_" + temp[0] + "_" + temp[1];
+				})
+				.attr("x", function(d, i) {
+					return x(new Date(d.date))
+					// return x(d.time[0]);
+				})
+				.attr("y", function(d, i) {
+					return y(d.time[0]);
+
+					// return y(new Date(d.date));
+				})
+				.attr("width", 2.5)
+				.attr("height", function(d, i) {
+					return y(d.time[1] - d.time[0]);
+				})
+				.attr("fill", "#7DB8E8");
+
+			// draw y axis
+			d3.select('#bar')
+				.append("g")
+		        .attr("class", "x_axis")
+		        .attr("transform", "translate(0, 50)")
+		        .call(d3.axisTop(x).tickFormat(d3.timeFormat("%b")).ticks(7))
+		        .style("font-family", "Inconsolata")
+		        .style("font-size", 12)
+		        .select(".domain").remove();
+
+		    // barSvg.append('line')
+		    // 	.attr("class", "guideline")
+		    // 	.attr("x1", x(9))
+		    // 	.attr("x2", x(9))
+		    // 	.attr("y1", y(new Date(barData[0].date)))
+		    // 	.attr("y2", y(new Date(barData[barData.length -1].date)))
+		    // 	.style("stroke", "#e8e8e8")
+		    // 	.style("stroke-dasharray", ("3, 3"));
+
+		   	// barSvg.append('line')
+		    // 	.attr("class", "guideline")
+		    // 	.attr("x1", x(2))
+		    // 	.attr("x2", x(2))
+		    // 	.attr("y1", y(new Date(barData[0].date)))
+		    // 	.attr("y2", y(new Date(barData[barData.length -1].date)))
+		    // 	.style("stroke", "#e8e8e8")
+		    // 	.style("stroke-dasharray", ("3, 3"));
+
+		    var tooltip = d3.select("body")
+				.append("div")
+				.style("padding", 10)
+				.style("position", "absolute")
+				.style("z-index", "10")
+				.style("visibility", "hidden")
+				.attr("white-space", "pre-line")
+				.style("background-color", "#f8f8f8")
+				.style("border-radius", "5px")
+				.style("border", "1px solid #cdcdcd");
+
+		    d3.select('#test').on("mousemove", function() {
+		    	var offset = document.getElementById('bar').getBoundingClientRect();
+		    	if (d3.event.clientX > 7+padding 
+		    		&& d3.event.clientX <= 1510-padding
+		    		&& d3.event.clientY - offset.y > 50 
+		    		&& d3.event.clientY - offset.y < 500) {
+		    		var tempDate = x.invert(d3.event.clientX - offset.x);
+				// console.log(tempDate);
+				d3.selectAll("rect").transition()
+					.duration(50)
+					.style("fill", "#7DB8E8");
+		    	var bars = d3.selectAll("#bar_" + (tempDate.getMonth() + 1) + "_" + tempDate.getDate());
+
+		    	// change color of selected bars
+		    	bars.transition()
+    				.duration(100)
+    				.style("fill", "#445578");
+
+    			
+    			var tempDay = tempDate.getDOY()-1;
+    			var tooltipText = "<b>" +monthNames[tempDate.getMonth()] + " " + tempDate.getDate() + "</b>"
+    				+ "<br /><b>times: </b> " + sleepData[tempDay].times
+    				+ "<br /><b>total hours slept: </b>" + calculateTotalHours(sleepData[tempDay].times);
+
+    			tooltip
+	   				.html(tooltipText)
+	   				.style("font-family", "Montserrat")
+	   				.style("font-size", 12)
+		   			.style("visibility", "visible")
+		   			.style("max-width", 150)
+		   			.style("top", (event.pageY+20)+"px")
+		   			.style("left", function() {
+		   				if (d3.event.clientX < 1000) {
+		   					return event.pageX + 20 +"px";	
+		   				} else {
+		   					return event.pageX - 150 +"px";
+		   				}
+		   			});
+		   		} else {
+		   			d3.selectAll("rect").transition()
+					.duration(50)
+					.style("fill", "#7DB8E8");
+
+		    		tooltip.style("visibility", "hidden");
+		   		}
+		    	
+		    }).on("mouseleave", function () {
+		    	// change color back to default
+		    	d3.selectAll("rect").transition()
+					.duration(50)
+					.style("fill", "#7DB8E8");
+
+		    	tooltip.style("visibility", "hidden");
+		    });
+		}
+
+	</script>
+</body>
+</html>  
