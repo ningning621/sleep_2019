@@ -185,7 +185,7 @@
 		}
 
 		const requestPieData = async () => {
-			sleepData = await d3.csv("../sleep.csv");
+			sleepData = await d3.csv("sleep.csv");
 			console.log(sleepData);
 
 			drawPie(sleepData.slice(23, 139), "#pie_spring", "sleep_spring");
