@@ -16,8 +16,8 @@
 			<h3>Here's to more zzz's in 2020! 👏</h3>
 		</div>
 
-		<div height="600" width="1500" id="test">
-			<svg id="bar" height="600" width="1500"/>
+		<div style="display: flex; justify-content: space-around;" height="600" width="1500" id="test">
+			<div><svg id="bar" height="600" width="1500"/></div>
 		</div>
 
 		<div style="margin: 0 auto; width: 1000; font-family: 'Montserrat', sans-serif; font-size: 12px; text-align: left; padding-bottom: 20px">
@@ -30,10 +30,12 @@
 		<div style="display: flex; flex-direction: row; justify-content: space-around;">
 			<div>
 				<h3 style="font-family: 'Inconsolata', monospace; font-size: 20px;">Sophomore Spring 2019</h3>
+				<h3 style="font-family: 'Montserrat', sans-serif; font-size: 12px;">January 24 - May 18</h3>
 				<svg id="pie_spring" height="650" width="650"/>
 			</div>
 			<div>
 				<h3 style="font-family: 'Inconsolata', monospace; font-size: 20px;">Junior Fall 2019</h3>
+				<h3 style="font-family: 'Montserrat', sans-serif; font-size: 12px;">August 29 - December 21</h3>
 				<svg id="pie_fall" height="650" width="650"/>
 			</div>
 		</div>
@@ -50,6 +52,7 @@
 		    height = 2000 - margin.top - margin.bottom;
 
 		let padding = 50;
+		var isAllNight = false;
 
 		const monthNames = ["January", "February", "March", "April", "May", "June",
 		  "July", "August", "September", "October", "November", "December"
@@ -94,6 +97,7 @@
 			return parseFloat(str[0] + "." + convertTimeToFrac(str[1]));
 		}
 
+		// total hours slept per day 
 		function calculateTotalHours(str) {
 			var times = str.split(";");
 			var total = 0;
@@ -103,6 +107,32 @@
 			}
 			return total;
 		}
+
+		function getAllNighters(data) {
+			var finalList = [];
+			for (var i = 0; i < data.length; i++) {
+				var str = data[i]["times"]
+				var timeBlock = (str.split(";"));
+				var time = timeBlock[0].split("-");
+
+				// did not sleep before 12
+				if (stringToPie(time[0]) > 12) {
+					finalList.push(data[i]);
+				}
+				// napped btw 12-2a, but did not sleep afterwards until 12p 
+				else if (timeBlock.length > 1) {
+					if (stringToPie(time[0]) < 3 && stringToPie(time[1]) < 2 && stringToPie(timeBlock[1].split("-")[0]) > 12) {
+						finalList.push(data[i]);
+					}
+				} else {
+					if (stringToPie(time[0]) < 3 && stringToPie(time[1]) < 2) {
+						finalList.push(data[i]);
+					}
+				}
+
+			}
+			return finalList;
+		} 
 
 		function calculateStdDev(data, avg) {
 			var totalSd = 0;
@@ -135,9 +165,24 @@
 			var totalWakeTime = 0; 
 
 			var totalByMonth = {};
+			var maxCount = 0;
+			var maxDate, minDate;
+			var minCount = 100;
 			for (var i = 0; i < sleepData.length; i++) {
+				// get max and min dates
+				calculateTotalHours(sleepData[i]["times"]);
+				if (calculateTotalHours(sleepData[i]["times"]) > maxCount) {
+					maxCount = calculateTotalHours(sleepData[i]["times"]);
+					maxDate = sleepData[i];
+				}
+
+				if (calculateTotalHours(sleepData[i]["times"]) < minCount) {
+					minCount = calculateTotalHours(sleepData[i]["times"]);
+					minDate = sleepData[i];
+				}
+
 				var timesArr = splitDayData(sleepData[i]["times"]);
-				var month = sleepData[i]["date"].split('/')[0];
+				var month = monthNames[sleepData[i]["date"].split('/')[0]-1];
 				if (!(month in totalByMonth)) {
 					totalByMonth[month] = new Array(24).fill(0);
 				}
@@ -172,6 +217,7 @@
 
 				});			
 			}
+			console.log(totalByMonth);
 			var avgPerDay = totalHours/sleepData.length;
 			var avgPerDaySd = calculateStdDev(sleepData, avgPerDay);
 			var avgPerDayMinusNaps = totalHoursMinusNaps/sleepData.length;
@@ -180,6 +226,9 @@
 			console.log("Average SD: " + avgPerDaySd);
 			console.log("Average Hours Per Shut Eye: " + avgPerShutEye);
 			console.log("Average Hours Per Day (Minus Naps):" +  avgPerDayMinusNaps);
+
+			console.log(maxDate);
+			console.log(minDate);
 		}
 
 		const requestPieData = async () => {
@@ -187,13 +236,20 @@
 			console.log(sleepData);
 
 			drawPie(sleepData.slice(23, 139), "#pie_spring", "sleep_spring");
-			drawPie(sleepData.slice(240), "#pie_fall", "sleep_fall");
+			drawPie(sleepData.slice(240, 355), "#pie_fall", "sleep_fall");
 			drawBarChart();
 			
-			// calculations
-			calculateData(sleepData.slice(23, 139));
-			calculateData(sleepData.slice(139, 240));
-			calculateData(sleepData.slice(240));
+			// console.log("overall");
+			// calculateData(sleepData);
+			// console.log("");
+			// // calculations
+			// console.log("spring soph");
+			// calculateData(sleepData.slice(23, 139));
+			// console.log("summer");
+			// calculateData(sleepData.slice(139, 240));
+			// console.log("fall junior");
+			// calculateData(sleepData.slice(240, 355));
+			// console.log(getAllNighters(sleepData));
 
 		};
 
@@ -352,10 +408,26 @@
 				.domain([0, 24])
 				.range([0, 500-padding]);
 
-			barSvg.selectAll(".bar")
+			// add bars for all nights 
+			var allNighterList = getAllNighters(sleepData);
+			barSvg.selectAll('.allNighter')
+				.data(allNighterList)
+				.enter()
+				.append('rect')
+				.attr('class', 'allNighter')
+				.attr('x', function(d, i) { return x(new Date(d.date));})
+				.attr('y', function() { return y(0);})
+				.attr('width', 2.5)
+				.attr('height', 500-padding)
+				.attr('fill', '#F5E092')
+				.style("opacity", 0);
+
+			// add main bars to graph
+			barSvg.selectAll(".main_bars")
 				.data(barData)
 				.enter()
 				.append("rect")
+				.attr('class', 'main_bars')
 				.attr("id", function(d) {
 					var temp = (d.date).split("/");
 					return "bar_" + temp[0] + "_" + temp[1];
@@ -384,6 +456,62 @@
 		        .style("font-family", "Inconsolata")
 		        .style("font-size", 12)
 		        .select(".domain").remove();
+
+
+		    // adding key for bar chart
+		    let key = ["all nighters", "min/max"];
+
+		    barSvg.selectAll('.key')
+				.data(key)
+		    	.enter()
+		    	.append('circle')
+		    	.attr('id', function(d, i) { console.log(d);return "key_" + i;})
+		    	.attr('cx', function(d, i) { return 600 + i*120;})
+		    	.attr('cy', 480)
+		    	.attr('r', 8)
+		    	.style('fill', '#f8f8f8')
+		    	.style('stroke', '#cdcdcd')
+		    	.style('stroke-width', 2)
+		    	.on('click', function (d, i) {
+		    		if (d == "all nighters") {
+		    			if (!isAllNight) {
+		    			barSvg.selectAll('.allNighter')
+		    				.transition()
+		    				.duration(500)
+		    				.style("opacity", 1);
+
+		    			isAllNight = true;
+
+		    			var circle = d3.select('#key_0')
+		    				.transition()
+		    				.duration(500)
+		    				.style('fill', '#cdcdcd');
+		    			} else {
+		    				barSvg.selectAll('.allNighter')
+			    				.transition()
+			    				.duration(500)
+		    					.style("opacity", 0);
+		    				isAllNight = false;
+
+		    				var circle = d3.select('#key_0')
+		    				.transition()
+		    				.duration(500)
+		    				.style('fill', '#f8f8f8');
+		    			}
+		    			
+		    		}
+		    	});
+
+		    barSvg.selectAll('.key_labels')
+				.data(key)
+		    	.enter()
+		    	.append('text')
+		    	.attr('x', function(d, i) { return 615 + i*120;})
+		    	.attr('y', 484)
+		    	.text(function(d) {return d;})
+		    	.style("font-family", "Montserrat")
+	   			.style("font-size", 12);
+		        	
 
 		    // barSvg.append('line')
 		    // 	.attr("class", "guideline")
@@ -416,13 +544,15 @@
 
 		    d3.select('#test').on("mousemove", function() {
 		    	var offset = document.getElementById('bar').getBoundingClientRect();
+
+		    	// window for bar chart
 		    	if (d3.event.clientX > 7+padding 
 		    		&& d3.event.clientX <= 1510-padding
 		    		&& d3.event.clientY - offset.y > 50 
 		    		&& d3.event.clientY - offset.y < 500) {
 		    		var tempDate = x.invert(d3.event.clientX - offset.x);
 				// console.log(tempDate);
-				d3.selectAll("rect").transition()
+				d3.selectAll(".main_bars").transition()
 					.duration(50)
 					.style("fill", "#7DB8E8");
 		    	var bars = d3.selectAll("#bar_" + (tempDate.getMonth() + 1) + "_" + tempDate.getDate());
@@ -453,7 +583,7 @@
 		   				}
 		   			});
 		   		} else {
-		   			d3.selectAll("rect").transition()
+		   			d3.selectAll(".main_bars").transition()
 					.duration(50)
 					.style("fill", "#7DB8E8");
 
@@ -462,7 +592,7 @@
 		    	
 		    }).on("mouseleave", function () {
 		    	// change color back to default
-		    	d3.selectAll("rect").transition()
+		    	d3.selectAll(".main_bars").transition()
 					.duration(50)
 					.style("fill", "#7DB8E8");
 
