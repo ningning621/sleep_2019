@@ -457,6 +457,15 @@
 		        .style("font-size", 12)
 		        .select(".domain").remove();
 
+		    d3.select('#bar')
+				.append("g")
+		        .attr("class", "y_axis")
+		        .attr("transform", "translate(1460, 50)")
+		        .call(d3.axisRight(y).tickFormat(function(d) { return d + ":00"}).ticks(12))
+		        .style("font-family", "Inconsolata")
+		        .style("font-size", 12)
+		        .select(".domain").remove();
+
 
 		    // adding key for bar chart
 		    let key = ["all nighters", "min/max"];
@@ -467,7 +476,7 @@
 		    	.append('circle')
 		    	.attr('id', function(d, i) { console.log(d);return "key_" + i;})
 		    	.attr('cx', function(d, i) { return 600 + i*120;})
-		    	.attr('cy', 480)
+		    	.attr('cy', 500)
 		    	.attr('r', 8)
 		    	.style('fill', '#f8f8f8')
 		    	.style('stroke', '#cdcdcd')
@@ -507,7 +516,7 @@
 		    	.enter()
 		    	.append('text')
 		    	.attr('x', function(d, i) { return 615 + i*120;})
-		    	.attr('y', 484)
+		    	.attr('y', 504)
 		    	.text(function(d) {return d;})
 		    	.style("font-family", "Montserrat")
 	   			.style("font-size", 12);
