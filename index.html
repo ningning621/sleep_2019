@@ -52,7 +52,7 @@
 		    height = 2000 - margin.top - margin.bottom;
 
 		let padding = 50;
-		var isAllNight = false;
+		var isAllNight, isMinMax = false;
 
 		const monthNames = ["January", "February", "March", "April", "May", "June",
 		  "July", "August", "September", "October", "November", "December"
@@ -155,6 +155,27 @@
 			return Math.sqrt(totalSd)/data.length;
 		}
 
+		function getMinMax(data) {
+			var maxCount = 0;
+			var maxDate, minDate;
+			var minCount = 100;
+
+			for (var i = 0; i < data.length; i++) {
+				// get max and min dates
+				if (calculateTotalHours(sleepData[i]["times"]) > maxCount) {
+					maxCount = calculateTotalHours(sleepData[i]["times"]);
+					maxDate = sleepData[i];
+				}
+
+				if (calculateTotalHours(sleepData[i]["times"]) < minCount) {
+					minCount = calculateTotalHours(sleepData[i]["times"]);
+					minDate = sleepData[i];
+				}
+
+			}
+			return [minDate, maxDate];
+		}
+
 		const calculateData = (sleepData) => {
 			// calculate avg amt of sleep per day
 			var totalHours = 0;
@@ -169,18 +190,6 @@
 			var maxDate, minDate;
 			var minCount = 100;
 			for (var i = 0; i < sleepData.length; i++) {
-				// get max and min dates
-				calculateTotalHours(sleepData[i]["times"]);
-				if (calculateTotalHours(sleepData[i]["times"]) > maxCount) {
-					maxCount = calculateTotalHours(sleepData[i]["times"]);
-					maxDate = sleepData[i];
-				}
-
-				if (calculateTotalHours(sleepData[i]["times"]) < minCount) {
-					minCount = calculateTotalHours(sleepData[i]["times"]);
-					minDate = sleepData[i];
-				}
-
 				var timesArr = splitDayData(sleepData[i]["times"]);
 				var month = monthNames[sleepData[i]["date"].split('/')[0]-1];
 				if (!(month in totalByMonth)) {
@@ -226,9 +235,6 @@
 			console.log("Average SD: " + avgPerDaySd);
 			console.log("Average Hours Per Shut Eye: " + avgPerShutEye);
 			console.log("Average Hours Per Day (Minus Naps):" +  avgPerDayMinusNaps);
-
-			console.log(maxDate);
-			console.log(minDate);
 		}
 
 		const requestPieData = async () => {
@@ -239,8 +245,8 @@
 			drawPie(sleepData.slice(240, 355), "#pie_fall", "sleep_fall");
 			drawBarChart();
 			
-			// console.log("overall");
-			// calculateData(sleepData);
+			console.log("overall");
+			calculateData(sleepData);
 			// console.log("");
 			// // calculations
 			// console.log("spring soph");
@@ -447,6 +453,50 @@
 				})
 				.attr("fill", "#7DB8E8");
 
+			// create min/max tooltips
+			var minMaxList = getMinMax(sleepData);
+			barSvg.selectAll("#minMaxCircle")
+				.data(minMaxList)
+				.enter()
+				.append('circle')
+				.attr('class', 'minmax')
+				.attr('cx', function(d) {return x(new Date(d.date))+1.25;})
+				.attr('cy', 500-padding)
+				.attr('r', 5)
+		    	.style('stroke', '#cdcdcd')
+		    	.style('stroke-width', 2)
+		    	.style('fill-opacity', 0)
+		    	.style('opacity', 0);
+
+		    barSvg.selectAll('#minMaxLine')
+		    	.data(minMaxList)
+				.enter()
+		    	.append('line')
+		    	.attr('class', 'minmax')
+		    	.attr('x1', function(d) {return x(new Date(d.date))+1.25;})
+		    	.attr('x2', function(d) {return x(new Date(d.date))+1.25;})
+		    	.attr('y1', 500-padding+5)
+		    	.attr('y2', 500-padding+20)
+		    	.style('stroke', '#cdcdcd')
+		    	.style('stroke-width', 2)
+		    	.style('opacity', 0);
+
+		    barSvg.selectAll('#minMaxText')
+		    	.data(minMaxList)
+				.enter()
+		    	.append('text')
+		    	.attr('class', 'minmax')
+		    	.attr('x', function(d) {return x(new Date(d.date))-5;})
+		    	.attr('y', 500-padding+35)
+		    	.text(function(d) {
+		    		var date = new Date(d.date);
+		    		return monthNames[date.getMonth()] + " " + date.getDate() + ": " + calculateTotalHours(d.times) + " hours slept";
+		    	})
+		    	.style("font-family", "Montserrat")
+	   			.style("font-size", 12)
+	   			.attr("font-weight", "bold")
+	   			.style('opacity', 0);
+
 			// draw y axis
 			d3.select('#bar')
 				.append("g")
@@ -461,7 +511,7 @@
 				.append("g")
 		        .attr("class", "y_axis")
 		        .attr("transform", "translate(1460, 50)")
-		        .call(d3.axisRight(y).tickFormat(function(d) { return d + ":00"}).ticks(12))
+		        .call(d3.axisRight(y).tickFormat(function(d) { return d + ":00"}).ticks(8))
 		        .style("font-family", "Inconsolata")
 		        .style("font-size", 12)
 		        .select(".domain").remove();
@@ -475,7 +525,7 @@
 		    	.enter()
 		    	.append('circle')
 		    	.attr('id', function(d, i) { console.log(d);return "key_" + i;})
-		    	.attr('cx', function(d, i) { return 600 + i*120;})
+		    	.attr('cx', function(d, i) { return 650 + i*120;})
 		    	.attr('cy', 500)
 		    	.attr('r', 8)
 		    	.style('fill', '#f8f8f8')
@@ -484,22 +534,23 @@
 		    	.on('click', function (d, i) {
 		    		if (d == "all nighters") {
 		    			if (!isAllNight) {
-		    			barSvg.selectAll('.allNighter')
-		    				.transition()
-		    				.duration(500)
-		    				.style("opacity", 1);
+			    			barSvg.selectAll('.allNighter')
+			    				.transition()
+			    				.duration(500)
+			    				.style("opacity", 1);
 
-		    			isAllNight = true;
+			    			isAllNight = true;
 
-		    			var circle = d3.select('#key_0')
-		    				.transition()
-		    				.duration(500)
-		    				.style('fill', '#cdcdcd');
+			    			var circle = d3.select('#key_0')
+			    				.transition()
+			    				.duration(500)
+			    				.style('fill', '#cdcdcd');
 		    			} else {
 		    				barSvg.selectAll('.allNighter')
 			    				.transition()
 			    				.duration(500)
 		    					.style("opacity", 0);
+
 		    				isAllNight = false;
 
 		    				var circle = d3.select('#key_0')
@@ -508,6 +559,32 @@
 		    				.style('fill', '#f8f8f8');
 		    			}
 		    			
+		    		} else if (d == "min/max") {
+		    			if (!isMinMax) {
+		    				barSvg.selectAll('.minmax')
+		    					.transition()
+		    					.duration(500)
+		    					.style('opacity', 1);
+
+		    				isMinMax = true;
+
+		    				var circle = d3.select('#key_1')
+		    				.transition()
+		    				.duration(500)
+		    				.style('fill', '#cdcdcd');
+		    			} else {
+		    				barSvg.selectAll('.minmax')
+		    					.transition()
+		    					.duration(500)
+		    					.style('opacity', 0);
+
+		    				isMinMax = false;
+
+		    				var circle = d3.select('#key_1')
+		    				.transition()
+		    				.duration(500)
+		    				.style('fill', '#f8f8f8');
+		    			}
 		    		}
 		    	});
 
@@ -515,30 +592,12 @@
 				.data(key)
 		    	.enter()
 		    	.append('text')
-		    	.attr('x', function(d, i) { return 615 + i*120;})
+		    	.attr('x', function(d, i) { return 665 + i*120;})
 		    	.attr('y', 504)
 		    	.text(function(d) {return d;})
 		    	.style("font-family", "Montserrat")
 	   			.style("font-size", 12);
-		        	
-
-		    // barSvg.append('line')
-		    // 	.attr("class", "guideline")
-		    // 	.attr("x1", x(9))
-		    // 	.attr("x2", x(9))
-		    // 	.attr("y1", y(new Date(barData[0].date)))
-		    // 	.attr("y2", y(new Date(barData[barData.length -1].date)))
-		    // 	.style("stroke", "#e8e8e8")
-		    // 	.style("stroke-dasharray", ("3, 3"));
-
-		   	// barSvg.append('line')
-		    // 	.attr("class", "guideline")
-		    // 	.attr("x1", x(2))
-		    // 	.attr("x2", x(2))
-		    // 	.attr("y1", y(new Date(barData[0].date)))
-		    // 	.attr("y2", y(new Date(barData[barData.length -1].date)))
-		    // 	.style("stroke", "#e8e8e8")
-		    // 	.style("stroke-dasharray", ("3, 3"));
+		
 
 		    var tooltip = d3.select("body")
 				.append("div")
