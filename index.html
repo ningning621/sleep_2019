@@ -9,16 +9,14 @@
 </head>
 <body bgcolor= "#f8f8f8" style="display: flex; flex-direction: column; text-align: center;">
 		<h2 style="font-family: 'Inconsolata', monospace; padding-top: 50px; font-size: 40px;">Sleep patterns of 2019</h2>
-		<div style="margin: 0 auto; width: 900; font-family: 'Montserrat', sans-serif; font-size: 11; text-align: left; padding-top: 40px">
+		<div style="margin: 0 auto; width: 900; font-family: 'Montserrat', sans-serif; font-size: 11; text-align: left;">
 			<h3>I started collecting data on my sleep habits about 3 years ago when I noticed that my sleep schedule was becoming increasingly
 			irregular. I had thought that by seeing my sleep patterns fall into disarray in real time I would make a conscious effort to correct it. Many of my close friends were aware that I slept at weird times but I don't think they knew, or even I knew, the extent of how bad my sleep habits are.</h3>
 			<h3>And yet, here we are, 3 years later. I realized that sleep will always be something that I struggle to value, but I'm working on prioritizing it for the upcoming year.</h3>
 			<h3>Here's to more zzz's in 2020! 👏</h3>
 		</div>
 
-		<div height="600" width="1100" id="test">
-			<div><svg id="bar" height="600" width="1100"/></div>
-		</div>
+		<div><svg id="bar" height="600" width="1100"/></div>
 
 		<div style="margin: 0 auto; width: 900; font-family: 'Montserrat', sans-serif; font-size: 11; text-align: left; padding-bottom: 20px">
 			<h3>I took very different classes during my spring and fall semesters at university. It's
@@ -602,12 +600,12 @@
 				.style("border-radius", "5px")
 				.style("border", "1px solid #cdcdcd");
 
-		    d3.select('#test').on("mousemove", function() {
+		    d3.select('#bar').on("mousemove", function() {
 		    	var offset = document.getElementById('bar').getBoundingClientRect();
 
 		    	// window for bar chart
-		    	if (d3.event.clientX > 7+padding 
-		    		&& d3.event.clientX <= 1510-padding
+		    	if (d3.event.clientX - offset.x > padding
+		    		&& d3.event.clientX - offset.x <= 1100-padding+2
 		    		&& d3.event.clientY - offset.y > 50 
 		    		&& d3.event.clientY - offset.y < 500) {
 		    		var tempDate = x.invert(d3.event.clientX - offset.x);
@@ -636,7 +634,7 @@
 		   			.style("max-width", 150)
 		   			.style("top", (event.pageY+20)+"px")
 		   			.style("left", function() {
-		   				if (d3.event.clientX < 1000) {
+		   				if (d3.event.clientX < 400) {
 		   					return event.pageX + 20 +"px";	
 		   				} else {
 		   					return event.pageX - 150 +"px";
