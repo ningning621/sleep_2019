@@ -7,43 +7,43 @@
 	<link href="https://fonts.googleapis.com/css?family=Inconsolata&display=swap" rel="stylesheet">
 	<link href="https://fonts.googleapis.com/css?family=Montserrat:200,200i&display=swap" rel="stylesheet">
 </head>
-<body bgcolor= "#f8f8f8" style="text-align: center;">
+<body bgcolor= "#f8f8f8" style="display: flex; flex-direction: column; text-align: center;">
 		<h2 style="font-family: 'Inconsolata', monospace; padding-top: 50px; font-size: 40px;">Sleep patterns of 2019</h2>
-		<div style="margin: 0 auto; width: 1000; font-family: 'Montserrat', sans-serif; font-size: 12px; text-align: left; padding-top: 40px">
+		<div style="margin: 0 auto; width: 900; font-family: 'Montserrat', sans-serif; font-size: 11; text-align: left; padding-top: 40px">
 			<h3>I started collecting data on my sleep habits about 3 years ago when I noticed that my sleep schedule was becoming increasingly
 			irregular. I had thought that by seeing my sleep patterns fall into disarray in real time I would make a conscious effort to correct it. Many of my close friends were aware that I slept at weird times but I don't think they knew, or even I knew, the extent of how bad my sleep habits are.</h3>
 			<h3>And yet, here we are, 3 years later. I realized that sleep will always be something that I struggle to value, but I'm working on prioritizing it for the upcoming year.</h3>
 			<h3>Here's to more zzz's in 2020! 👏</h3>
 		</div>
 
-		<div style="display: flex; justify-content: space-around;" height="600" width="1500" id="test">
-			<div><svg id="bar" height="600" width="1500"/></div>
+		<div height="600" width="1100" id="test">
+			<div><svg id="bar" height="600" width="1100"/></div>
 		</div>
 
-		<div style="margin: 0 auto; width: 1000; font-family: 'Montserrat', sans-serif; font-size: 12px; text-align: left; padding-bottom: 20px">
+		<div style="margin: 0 auto; width: 900; font-family: 'Montserrat', sans-serif; font-size: 11; text-align: left; padding-bottom: 20px">
 			<h3>I took very different classes during my spring and fall semesters at university. It's
 			interesting to see how my sleep schedule was more consistent in the spring and how I tried to skew my sleep times earlier in the fall. 
 			You can also catch glimpses of when my poor sleep habits relapsed in fall.</h3>
 			<h3>The cycle represents a 24 hour clock and each ring represents a singular day, starting from the center and growing outwards.</h3>
 		</div>
 
-		<div style="display: flex; flex-direction: row; justify-content: space-around;">
+		<div style="display: flex; flex-direction: row; justify-content: space-around; margin: auto" width="1100">
 			<div>
-				<h3 style="font-family: 'Inconsolata', monospace; font-size: 20px;">Sophomore Spring 2019</h3>
-				<h3 style="font-family: 'Montserrat', sans-serif; font-size: 12px;">January 24 - May 18</h3>
-				<svg id="pie_spring" height="650" width="650"/>
+				<h3 style="font-family: 'Inconsolata', monospace; font-size: 18px;">Sophomore Spring 2019</h3>
+				<h3 style="font-family: 'Montserrat', sans-serif; font-size: 11px;">January 24 - May 18</h3>
+				<svg id="pie_spring" height="550" width="550"/>
 			</div>
 			<div>
-				<h3 style="font-family: 'Inconsolata', monospace; font-size: 20px;">Junior Fall 2019</h3>
-				<h3 style="font-family: 'Montserrat', sans-serif; font-size: 12px;">August 29 - December 21</h3>
-				<svg id="pie_fall" height="650" width="650"/>
+				<h3 style="font-family: 'Inconsolata', monospace; font-size: 18px;">Junior Fall 2019</h3>
+				<h3 style="font-family: 'Montserrat', sans-serif; font-size: 11px;">August 29 - December 21</h3>
+				<svg id="pie_fall" height="550" width="550"/>
 			</div>
 		</div>
 	</div>
 	<script>		
 		let PI = Math.PI;
 		let arcMin = 25;
-		let arcWidth = 2;
+		let arcWidth = 1.5;
 		var sleepData;
 		var fullAwakeArr = [];
 
@@ -323,7 +323,7 @@
 				.enter()
 				.append('path')
 				.attr('d', arc)
-				.attr('transform', "translate(" + 325 + ", " + 325 + ")") // make sure to edit these values
+				.attr('transform', "translate(" + 275 + ", " + 275 + ")") // make sure to edit these values
 				.attr('fill', "#7DB8E8");
 
 			// reset ring counter for awake data
@@ -344,14 +344,8 @@
 				.enter()
 				.append('path')
 				.attr('d', arc)
-				.attr('transform', "translate(" + 325 + ", " + 325 + ")")
+				.attr('transform', "translate(" + 275 + ", " + 275 + ")") // make sure to edit these values
 				.attr('fill', "#e7e7e7");
-
-			// var textArc = d3.arc()
-			// 	.startAngle(0)
-			// 	.endAngle(2* PI)
-			// 	.outerRadius(arcMin + (ringCounter+10)*arcWidth)
-			// 	.innerRadius(arcMin + (ringCounter + 5)*arcWidth);
 
 			var axisScale = d3.scaleLinear()
 				.domain([0, 24])
@@ -366,11 +360,11 @@
 					if (d == "24") return "";
 					return d + ":00";
 				})
-				).attr('transform', "translate(" + 325 + ", " + 325 + ")")
+				).attr('transform', "translate(" + 275 + ", " + 275 + ")") // make sure to edit these values
 				.style("opacity", 0.6)
 				.selectAll("text")
 					.style("font-family", "Inconsolata")
-			        .style("font-size", 12)
+			        .style("font-size", 11)
 			        .attr("text-anchor", function(d) {
 			        	if (axisScale(d) < Math.PI) return "start";
 			        	else return "end";
@@ -408,7 +402,7 @@
 
 			var x = d3.scaleTime()
 				.domain([new Date(barData[0]["date"]), new Date(barData[barData.length - 1]["date"])])
-				.range([0+padding, 1500-padding]);
+				.range([0+padding, 1100-padding]);
 
 			var y = d3.scaleLinear()
 				.domain([0, 24])
@@ -423,7 +417,7 @@
 				.attr('class', 'allNighter')
 				.attr('x', function(d, i) { return x(new Date(d.date));})
 				.attr('y', function() { return y(0);})
-				.attr('width', 2.5)
+				.attr('width', 1.5)
 				.attr('height', 500-padding)
 				.attr('fill', '#F5E092')
 				.style("opacity", 0);
@@ -440,14 +434,11 @@
 				})
 				.attr("x", function(d, i) {
 					return x(new Date(d.date))
-					// return x(d.time[0]);
 				})
 				.attr("y", function(d, i) {
 					return y(d.time[0]);
-
-					// return y(new Date(d.date));
 				})
-				.attr("width", 2.5)
+				.attr("width", 1.5)
 				.attr("height", function(d, i) {
 					return y(d.time[1] - d.time[0]);
 				})
@@ -460,7 +451,7 @@
 				.enter()
 				.append('circle')
 				.attr('class', 'minmax')
-				.attr('cx', function(d) {return x(new Date(d.date))+1.25;})
+				.attr('cx', function(d) {return x(new Date(d.date))+0.75;}) // add offset of rect_width/2
 				.attr('cy', 500-padding)
 				.attr('r', 5)
 		    	.style('stroke', '#cdcdcd')
@@ -473,8 +464,8 @@
 				.enter()
 		    	.append('line')
 		    	.attr('class', 'minmax')
-		    	.attr('x1', function(d) {return x(new Date(d.date))+1.25;})
-		    	.attr('x2', function(d) {return x(new Date(d.date))+1.25;})
+		    	.attr('x1', function(d) {return x(new Date(d.date))+0.75;}) // add offset of rect_width/2
+		    	.attr('x2', function(d) {return x(new Date(d.date))+0.75;}) // add offset of rect_width/2
 		    	.attr('y1', 500-padding+5)
 		    	.attr('y2', 500-padding+20)
 		    	.style('stroke', '#cdcdcd')
@@ -493,7 +484,7 @@
 		    		return monthNames[date.getMonth()] + " " + date.getDate() + ": " + calculateTotalHours(d.times) + " hours slept";
 		    	})
 		    	.style("font-family", "Montserrat")
-	   			.style("font-size", 12)
+	   			.style("font-size", 11)
 	   			.attr("font-weight", "bold")
 	   			.style('opacity', 0);
 
@@ -504,16 +495,16 @@
 		        .attr("transform", "translate(0, 50)")
 		        .call(d3.axisTop(x).tickFormat(d3.timeFormat("%b")).ticks(7))
 		        .style("font-family", "Inconsolata")
-		        .style("font-size", 12)
+		        .style("font-size", 11)
 		        .select(".domain").remove();
 
 		    d3.select('#bar')
 				.append("g")
 		        .attr("class", "y_axis")
-		        .attr("transform", "translate(1460, 50)")
+		        .attr("transform", "translate(1060, 50)")
 		        .call(d3.axisRight(y).tickFormat(function(d) { return d + ":00"}).ticks(8))
 		        .style("font-family", "Inconsolata")
-		        .style("font-size", 12)
+		        .style("font-size", 11)
 		        .select(".domain").remove();
 
 
@@ -525,7 +516,7 @@
 		    	.enter()
 		    	.append('circle')
 		    	.attr('id', function(d, i) { console.log(d);return "key_" + i;})
-		    	.attr('cx', function(d, i) { return 650 + i*120;})
+		    	.attr('cx', function(d, i) { return 450 + i*120;})
 		    	.attr('cy', 500)
 		    	.attr('r', 8)
 		    	.style('fill', '#f8f8f8')
@@ -592,11 +583,12 @@
 				.data(key)
 		    	.enter()
 		    	.append('text')
-		    	.attr('x', function(d, i) { return 665 + i*120;})
+		    	.attr('x', function(d, i) { return 465 + i*120;})
 		    	.attr('y', 504)
 		    	.text(function(d) {return d;})
 		    	.style("font-family", "Montserrat")
-	   			.style("font-size", 12);
+		    	.style("font-weight", "bold")
+	   			.style("font-size", 11);
 		
 
 		    var tooltip = d3.select("body")
@@ -639,7 +631,7 @@
     			tooltip
 	   				.html(tooltipText)
 	   				.style("font-family", "Montserrat")
-	   				.style("font-size", 12)
+	   				.style("font-size", 11)
 		   			.style("visibility", "visible")
 		   			.style("max-width", 150)
 		   			.style("top", (event.pageY+20)+"px")
