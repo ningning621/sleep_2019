@@ -7,9 +7,9 @@
 	<link href="https://fonts.googleapis.com/css?family=Inconsolata&display=swap" rel="stylesheet">
 	<link href="https://fonts.googleapis.com/css?family=Montserrat:200,200i&display=swap" rel="stylesheet">
 </head>
-<body bgcolor= "#f8f8f8" style="display: flex; flex-direction: column; text-align: center;">
+<body bgcolor= "#f8f8f8" style="display: flex; flex-direction: column; text-align: center; margin-bottom: 20px;">
 		<h2 style="font-family: 'Inconsolata', monospace; padding-top: 50px; font-size: 40px;">Sleep patterns of 2019</h2>
-		<div style="margin: 0 auto; width: 900; font-family: 'Montserrat', sans-serif; font-size: 0.7vw; text-align: left;">
+		<div style="margin: 0 auto; width: 900; font-family: 'Montserrat', sans-serif; font-size: 0.8vw; text-align: left;">
 			<h3>I started collecting data on my sleep habits about 3 years ago when I noticed that my sleep schedule was becoming increasingly
 			irregular. I had thought that by seeing my sleep patterns fall into disarray in real time I would make a conscious effort to correct it. Many of my close friends were aware that I slept at weird times but I don't think they knew, or even I knew, the severity of my sleep habits.</h3>
 			<h3>And yet, here we are, 3 years later. I realized that sleep will always be something that I struggle to value, but I'm working on prioritizing it for the upcoming year.</h3>
@@ -19,27 +19,29 @@
 		<div>
 			<svg id="bar" height="575" width="1100"/>
 			<div style="margin-top: 20px; margin-bottom: 10px;">
-				<div id="stats" style="text-align: left; font-family: 'Montserrat', sans-serif; font-size: 0.7vw; display: inline-block; text-align: left; border: 1px solid #cdcdcd; border-radius: 5px; padding: 10px; opacity: 0;"></div>
+				<div id="stats" style="text-align: left; font-family: 'Montserrat', sans-serif; font-size: 0.8vw; display: inline-block; border: 1px solid #cdcdcd; border-radius: 5px; padding: 10px; opacity: 0;"></div>
 			</div>
 		</div>
 
-		<div style="margin: 0 auto; width: 900; font-family: 'Montserrat', sans-serif; font-size: 0.7vw; text-align: left; padding-bottom: 20px">
+		<div style="margin: 0 auto; width: 900; font-family: 'Montserrat', sans-serif; font-size: 0.8vw; text-align: left; padding-bottom: 20px">
 			<h3>I took very different classes during my spring and fall semesters at university. It's
 			interesting to see how my sleep schedule was more consistent in the spring and how I tried sleep earlier in the fall. 
 			You can also catch glimpses of when my sleep habits relapsed in fall, which causes the arcs to shift clockwise.</h3>
 			<h3>The cycle represents a 24 hour clock and each ring represents a singular day, starting from the center and growing outwards.</h3>
 		</div>
 
-		<div style="display: flex; flex-direction: row; justify-content: space-around; margin: auto" width="1100">
-			<div>
+		<div style="display: flex; flex-direction: row; justify-content: space-around; margin: auto;" width="1100" >
+			<div style="text-align: center;">
 				<h3 style="font-family: 'Inconsolata', monospace; font-size: 1.5vw;">Sophomore Spring 2019</h3>
 				<h3 style="font-family: 'Montserrat', sans-serif; font-size: 0.9vw;">January 24 - May 18</h3>
 				<svg id="pie_spring" height="550" width="550"/>
+				<div style="font-family: 'Montserrat', sans-serif; font-size: 0.8vw; display: inline-block; border: 1px solid #cdcdcd; border-radius: 5px; padding: 10px; text-align: left;" id="pie_spring_stats"><b>stats</b> spring</div>
 			</div>
-			<div>
+			<div style="text-align: center;">
 				<h3 style="font-family: 'Inconsolata', monospace; font-size: 1.5vw;">Junior Fall 2019</h3>
 				<h3 style="font-family: 'Montserrat', sans-serif; font-size: 0.9vw;">August 29 - December 21</h3>
 				<svg id="pie_fall" height="550" width="550"/>
+				<div style="font-family: 'Montserrat', sans-serif; font-size: 0.8vw; display: inline-block; border: 1px solid #cdcdcd; border-radius: 5px; padding: 10px; text-align: left;" id="pie_fall_stats">stats fall</div>
 			</div>
 		</div>
 	</div>
@@ -379,13 +381,16 @@
 				.style("opacity", 0.6)
 				.selectAll("text")
 					.style("font-family", "Inconsolata")
-			        .style("font-size", "0.7vw")
+			        .style("font-size", "0.8vw")
 			        .attr("text-anchor", function(d) {
 			        	if (axisScale(d) < Math.PI) return "start";
 			        	else return "end";
 			        });				
 
 				fullAwakeArr = [];
+
+			d3.select(pie_id + "_stats")
+				.html(calculateData(data));
 		}
 
 		// flatten nested map
@@ -499,7 +504,7 @@
 		    		return monthNames[date.getMonth()] + " " + date.getDate() + ": " + calculateTotalHours(d.times) + " hours slept";
 		    	})
 		    	.style("font-family", "Montserrat")
-	   			.style("font-size", "0.7vw")
+	   			.style("font-size", "0.8vw")
 	   			.attr("font-weight", "bold")
 	   			.style('opacity', 0);
 
@@ -510,7 +515,7 @@
 		        .attr("transform", "translate(0, 50)")
 		        .call(d3.axisTop(x).tickFormat(d3.timeFormat("%b")).ticks(7))
 		        .style("font-family", "Inconsolata")
-		        .style("font-size", "0.7vw")
+		        .style("font-size", "0.8vw")
 		        .select(".domain").remove();
 
 		    d3.select('#bar')
@@ -519,7 +524,7 @@
 		        .attr("transform", "translate(1060, 50)")
 		        .call(d3.axisRight(y).tickFormat(function(d) { return d + ":00"}).ticks(8))
 		        .style("font-family", "Inconsolata")
-		        .style("font-size", "0.7vw")
+		        .style("font-size", "0.8vw")
 		        .select(".domain").remove();
 
 		    d3.select("#stats")
@@ -631,7 +636,7 @@
 		    	.text(function(d) {return d;})
 		    	.style("font-family", "Montserrat")
 		    	.style("font-weight", "bold")
-	   			.style("font-size", "0.7vw");
+	   			.style("font-size", "0.8vw");
 		
 
 		    var tooltip = d3.select("body")
@@ -674,7 +679,7 @@
     			tooltip
 	   				.html(tooltipText)
 	   				.style("font-family", "Montserrat")
-	   				.style("font-size", "0.7vw")
+	   				.style("font-size", "0.8vw")
 		   			.style("visibility", "visible")
 		   			.style("max-width", 150)
 		   			.style("top", (event.pageY+20)+"px")
