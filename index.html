@@ -113,11 +113,60 @@
 			return total;
 		}
 
-		function convertNumToTimeStr(num) {
+		// format: xx h xx min
+		function convertNumToTimeDec(num) {
 			var hrs = Math.floor(num);
 			var mins = Math.floor(num * 60 % 60);
 
 			return hrs + " h " + mins + " min";
+		}
+
+		// format: xx:xx am (assuming that all times are < 12p)
+		function convertNumToTimeStr(num) {
+			var hrs = Math.floor(num);
+			var mins = Math.floor(num * 60 % 60);
+
+			return hrs + ":" + mins + " am";
+		}
+
+		function getLongestTimeSegment(str) {
+			var length = 0;
+			var timeStr = "";
+
+			var timeBlock = (str.split(";"));
+
+			for (var i = 0; i < timeBlock.length; i++) {
+				var time = timeBlock[i].split("-");	
+				if (stringToPie(time[0]) < 12) {
+					var tempLength = stringToPie(time[1]) - stringToPie(time[0]);
+
+					if (tempLength > length) {
+						length = tempLength;
+						timeStr = timeBlock[i];
+					}
+				}
+			}
+
+			return timeStr;
+		}
+		// get avg time to fall asleep
+		function getAvgSleepTime(data) {
+			var total = 0;
+			var count = 0;
+			for (var i = 0; i < data.length; i++) {
+				var str = data[i]["times"];
+				var timeBlock = getLongestTimeSegment(str).split(";");
+				// var timeBlock = (str.split(";"));
+				if (timeBlock != "") {
+					var sleepTime = (timeBlock[0].split("-"))[0];
+					total += stringToPie(sleepTime);
+					count ++;
+				} 
+				// else {
+				// 	console.log(data[i]);
+				// }
+			}
+			return total/count;
 		}
 
 		function getAllNighters(data) {
@@ -174,14 +223,14 @@
 
 			for (var i = 0; i < data.length; i++) {
 				// get max and min dates
-				if (calculateTotalHours(sleepData[i]["times"]) > maxCount) {
-					maxCount = calculateTotalHours(sleepData[i]["times"]);
-					maxDate = sleepData[i];
+				if (calculateTotalHours(data[i]["times"]) > maxCount) {
+					maxCount = calculateTotalHours(data[i]["times"]);
+					maxDate = data[i];
 				}
 
-				if (calculateTotalHours(sleepData[i]["times"]) < minCount) {
-					minCount = calculateTotalHours(sleepData[i]["times"]);
-					minDate = sleepData[i];
+				if (calculateTotalHours(data[i]["times"]) < minCount) {
+					minCount = calculateTotalHours(data[i]["times"]);
+					minDate = data[i];
 				}
 
 			}
@@ -243,14 +292,17 @@
 			var avgPerDaySd = calculateStdDev(sleepData, avgPerDay);
 			var avgPerDayMinusNaps = totalHoursMinusNaps/sleepData.length;
 			var avgPerShutEye = totalHours/shutEyeCounter;
-			console.log("Average Hours Per Day: " + avgPerDay);
-			console.log("Average SD: " + avgPerDaySd);
-			console.log("Average Hours Per Shut Eye: " + avgPerShutEye);
-			console.log("Average Hours Per Day (Minus Naps):" +  avgPerDayMinusNaps);
+			// console.log("Average Hours Per Day: " + avgPerDay);
+			// console.log("Average SD: " + avgPerDaySd);
+			// console.log("Average Hours Per Shut Eye: " + avgPerShutEye);
+			// console.log("Average Hours Per Day (Minus Naps):" +  avgPerDayMinusNaps);
+			// console.log("Average Sleep Time: " + getAvgSleepTime(sleepData));
 
-			var finalText = "<b>avg time slept / day: </b>" + convertNumToTimeStr(avgPerDay.toFixed(2))
-				+"<br/> <b>avg time slept / day (minus naps): </b>" +  convertNumToTimeStr(avgPerDayMinusNaps.toFixed(2))
-				+ "<br/> <b>avg time slept / shut-eye: </b>" + convertNumToTimeStr(avgPerShutEye.toFixed(2));
+			var finalText = "<b>avg time slept / day: </b>" + convertNumToTimeDec(avgPerDay.toFixed(2))
+				+"<br/> <b>avg time slept / day (minus naps): </b>" +  convertNumToTimeDec(avgPerDayMinusNaps.toFixed(2))
+				+ "<br/> <b>avg time slept / shut-eye: </b>" + convertNumToTimeDec(avgPerShutEye.toFixed(2))
+				+ "<br/> <b>avg shut-eye time: </b>" + convertNumToTimeStr(getAvgSleepTime(sleepData).toFixed(2));
+
 			return finalText;
 		}
 
@@ -524,7 +576,7 @@
 				.data(key)
 		    	.enter()
 		    	.append('circle')
-		    	.attr('id', function(d, i) { console.log(d);return "key_" + i;})
+		    	.attr('id', function(d, i) { return "key_" + i;})
 		    	.attr('cx', function(d, i) { return 435 + i*100;})
 		    	.attr('cy', 515)
 		    	.attr('r', 8)
