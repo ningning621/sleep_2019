@@ -23,6 +23,10 @@
 			</div>
 		</div>
 
+		<div style="padding-top: 20px">
+			<svg id="heatMap" height="500" width="800"/>
+		</div>
+
 		<div style="margin: 0 auto; width: 900; font-family: 'Montserrat', sans-serif; font-size: 0.8vw; text-align: left; padding-bottom: 20px">
 			<h3>I took very different classes during my spring and fall semesters at university. It's
 			interesting to see how my sleep schedule was more consistent in the spring and how I tried sleep earlier in the fall. 
@@ -32,14 +36,14 @@
 
 		<div style="display: flex; flex-direction: row; justify-content: space-around; margin: auto;" width="1100" >
 			<div style="text-align: center;">
-				<h3 style="font-family: 'Inconsolata', monospace; font-size: 1.5vw;">Sophomore Spring 2019</h3>
-				<h3 style="font-family: 'Montserrat', sans-serif; font-size: 0.9vw;">January 24 - May 18</h3>
+				<h3 style="font-family: 'Inconsolata', monospace; font-size: 1.5vw;">sophomore spring 2019</h3>
+				<h3 style="font-family: 'Montserrat', sans-serif; font-size: 0.9vw;">january 24 - may 18</h3>
 				<svg id="pie_spring" height="550" width="550"/>
 				<div style="font-family: 'Montserrat', sans-serif; font-size: 0.8vw; display: inline-block; border: 1px solid #cdcdcd; border-radius: 5px; padding: 10px; text-align: left;" id="pie_spring_stats"><b>stats</b> spring</div>
 			</div>
 			<div style="text-align: center;">
-				<h3 style="font-family: 'Inconsolata', monospace; font-size: 1.5vw;">Junior Fall 2019</h3>
-				<h3 style="font-family: 'Montserrat', sans-serif; font-size: 0.9vw;">August 29 - December 21</h3>
+				<h3 style="font-family: 'Inconsolata', monospace; font-size: 1.5vw;">junior fall 2019</h3>
+				<h3 style="font-family: 'Montserrat', sans-serif; font-size: 0.9vw;">august 29 - december 21</h3>
 				<svg id="pie_fall" height="550" width="550"/>
 				<div style="font-family: 'Montserrat', sans-serif; font-size: 0.8vw; display: inline-block; border: 1px solid #cdcdcd; border-radius: 5px; padding: 10px; text-align: left;" id="pie_fall_stats">stats fall</div>
 			</div>
@@ -49,7 +53,7 @@
 		let PI = Math.PI;
 		let arcMin = 25;
 		let arcWidth = 1.5;
-		var sleepData;
+		var sleepData, heatMapData;
 		var fullAwakeArr = [];
 
 		var margin = {top: 50, right: 0, bottom: 50, left: 0},
@@ -237,25 +241,61 @@
 			return [minDate, maxDate];
 		}
 
+		function mapToHeatMapFormat(data) {
+			var newMap = [];
+			for (var i = 0; i < monthNames.length; i++) {
+				var key = monthNames[i];
+
+				for (var j = 0; j < (data[key]).length; j++) {
+					newMap.push({
+						"month": i,
+						"time": j,
+						"total": data[key][j]
+					});
+				} 
+			}
+			return newMap;
+		}
+
+		function getHeatMapData(data) {
+			var totalByMonth = {};
+			for (var i = 0; i < data.length; i++) {
+				var timesArr = splitDayData(sleepData[i]["times"]);
+				var month = monthNames[sleepData[i]["date"].split('/')[0]-1];
+				if (!(month in totalByMonth)) {
+					totalByMonth[month] = new Array(24).fill(0);
+				}
+				timesArr.map(x => {
+					var endTime = stringToPie(x.split("-")[1])
+					var startTime = stringToPie(x.split("-")[0])
+
+					if (Math.floor(endTime) != 24) {
+						totalByMonth[month][Math.floor(endTime)] += (endTime - Math.floor(endTime));
+					} 
+
+					for (var i = Math.floor(endTime)-1; i > Math.floor(startTime); i--) {
+						totalByMonth[month][i] += 1;
+					}
+
+					totalByMonth[month][Math.floor(startTime)] += (1 - (startTime) + Math.floor(startTime));
+
+				});			
+			}
+			heatMapData = mapToHeatMapFormat(totalByMonth);
+		}
+
 		const calculateData = (sleepData) => {
 			// calculate avg amt of sleep per day
 			var totalHours = 0;
 			// naps are defined as < 3h
 			var totalHoursMinusNaps = 0; 
 			var shutEyeCounter = 0;
-			var totalBedTime = 0;
-			var totalWakeTime = 0; 
 
-			var totalByMonth = {};
 			var maxCount = 0;
 			var maxDate, minDate;
 			var minCount = 100;
 			for (var i = 0; i < sleepData.length; i++) {
 				var timesArr = splitDayData(sleepData[i]["times"]);
-				var month = monthNames[sleepData[i]["date"].split('/')[0]-1];
-				if (!(month in totalByMonth)) {
-					totalByMonth[month] = new Array(24).fill(0);
-				}
 				timesArr.map(x => {
 					var currentDuration = stringToPie(x.split("-")[1]) - stringToPie(x.split("-")[0]);
 					totalHours = totalHours + currentDuration;
@@ -272,22 +312,9 @@
 						shutEyeCounter = shutEyeCounter + 1;
 					}
 
-					var endTime = stringToPie(x.split("-")[1])
-					var startTime = stringToPie(x.split("-")[0])
-
-					if (Math.floor(endTime) != 24) {
-						totalByMonth[month][Math.floor(endTime)] += (endTime - Math.floor(endTime));
-					} 
-
-					for (var i = Math.floor(endTime)-1; i > Math.floor(startTime); i--) {
-					totalByMonth[month][i] += 1;
-					}
-
-					totalByMonth[month][Math.floor(startTime)] += (1 - (startTime) + Math.floor(startTime));
-
 				});			
 			}
-			console.log(totalByMonth);
+	
 			var avgPerDay = totalHours/sleepData.length;
 			var avgPerDaySd = calculateStdDev(sleepData, avgPerDay);
 			var avgPerDayMinusNaps = totalHoursMinusNaps/sleepData.length;
@@ -309,10 +336,11 @@
 		const requestPieData = async () => {
 			sleepData = await d3.csv("sleep.csv");
 			console.log(sleepData);
-
+			getHeatMapData(sleepData);
 			drawPie(sleepData.slice(23, 139), "#pie_spring", "sleep_spring");
 			drawPie(sleepData.slice(240, 355), "#pie_fall", "sleep_fall");
 			drawBarChart();
+			drawHeatMap(heatMapData);
 		};
 
 		// creates array for awake times 
@@ -403,6 +431,7 @@
 				.attr('transform', "translate(" + 275 + ", " + 275 + ")") // make sure to edit these values
 				.attr('fill', "#e7e7e7");
 
+			// draw x-axis
 			var axisScale = d3.scaleLinear()
 				.domain([0, 24])
 				.range([0, 2*Math.PI]);
@@ -426,7 +455,15 @@
 			        	else return "end";
 			        });				
 
-				fullAwakeArr = [];
+			fullAwakeArr = [];
+
+			d3.select(pie_id)
+            	.append('text')
+            	.attr('transform', "translate(" + 275 + ", " + 30 + ")") // make sure to edit these values
+            	.text("time 🠒")
+            	.style("font-family", "Inconsolata")
+		        .style("font-size", "0.8vw")
+		        .style("font-weight", "bold");
 
 			d3.select(pie_id + "_stats")
 				.html(calculateData(data));
@@ -461,7 +498,7 @@
 
 			var x = d3.scaleTime()
 				.domain([new Date(barData[0]["date"]), new Date(barData[barData.length - 1]["date"])])
-				.range([0+padding, 1100-padding]);
+				.range([0+padding, 1100-padding-20]);
 
 			var y = d3.scaleLinear()
 				.domain([0, 24])
@@ -547,7 +584,7 @@
 	   			.attr("font-weight", "bold")
 	   			.style('opacity', 0);
 
-			// draw y axis
+			// draw x axis
 			d3.select('#bar')
 				.append("g")
 		        .attr("class", "x_axis")
@@ -557,14 +594,23 @@
 		        .style("font-size", "0.8vw")
 		        .select(".domain").remove();
 
+		    // draw y axis
 		    d3.select('#bar')
 				.append("g")
 		        .attr("class", "y_axis")
-		        .attr("transform", "translate(1060, 50)")
+		        .attr("transform", "translate(1040, 50)")
 		        .call(d3.axisRight(y).tickFormat(function(d) { return d + ":00"}).ticks(8))
 		        .style("font-family", "Inconsolata")
 		        .style("font-size", "0.8vw")
 		        .select(".domain").remove();
+
+		    d3.select("#bar")
+            	.append('text')
+            	.attr('transform', "translate(" + 1090 + ", " + 45 + "), rotate(90)") // make sure to edit these values
+            	.text("time 🠒")
+            	.style("font-family", "Inconsolata")
+		        .style("font-size", "0.8vw")
+		        .style("font-weight", "bold");
 
 		    d3.select("#stats")
 		    	.html(calculateData(sleepData));
@@ -745,6 +791,79 @@
 
 		    	tooltip.style("visibility", "hidden");
 		    });
+		}
+
+		function drawHeatMap(data) {
+			var mapWidth = 800;
+			var mapheight = 500; 
+			var gridSize = Math.floor((mapWidth-50) / 24) -2;
+			console.log(data);
+
+			var colorScale = d3.scaleSequential(d3.interpolateBlues)
+			  .domain([0, d3.max(data, function(d) {return d.total;})+10]);
+
+			var heatMapSvg = d3.select("#heatMap")
+				.append('g')
+				.attr("transform", "translate(100, 100)");
+
+			heatMapSvg.selectAll(".heatMapRect")
+				.data(data)
+				.enter()
+				.append('rect')
+				.attr("y", function(d) { return (d.month) * gridSize; })
+              	.attr("x", function(d) { return (d.time) * gridSize; })
+              	.attr("rx", 4)
+              	.attr("ry", 4)
+              	.attr("width", gridSize-5)
+              	.attr("height", gridSize-5)
+              	.style("fill", function(d) {return colorScale(d.total);});
+
+            // add title
+            d3.select("#heatMap")
+            	.append('text')
+            	.attr("transform", "translate(50, 30)")
+            	.text("breakdown by month and hour")
+            	.style("font-family", "Inconsolata")
+		        .style("font-size", "1.5vw")
+		        .style("font-weight", "bold");
+            
+            // draw y-axis
+            var y = d3.scaleBand().domain(monthNames)
+            	.range([0, gridSize*12]);
+
+            d3.select("#heatMap")
+            	.append('g')
+            	.attr("class", "y_axis")
+            	.attr("transform", "translate(95, 100)")
+                .call(d3.axisLeft(y).ticks(12).tickSize(0))
+		        .style("font-family", "Inconsolata")
+		        .style("font-size", "0.8vw")
+		        .select(".domain").remove();
+
+		    // draw x-axis
+		    var x = d3.scaleLinear().domain([0, 23])
+		    	.range([(gridSize/2)-2.5, (gridSize * 23) + (gridSize/2)-2.5]);
+
+		    d3.select("#heatMap")
+            	.append('g')
+            	.attr("class", "y_axis")
+            	.attr("transform", "translate(100, 95)")
+                .call(d3.axisTop(x).tickFormat(function(d) { return d + ":00"}).ticks(12))
+		        .style("font-family", "Inconsolata")
+		        .style("font-size", "0.8vw")
+		        .select(".domain").remove();
+
+		    d3.select("#heatMap")
+            	.append('text')
+            	.attr("class", "y_axis")
+            	.attr("transform", "translate(100, 60)")
+            	.text("time 🠒")
+            	.style("font-family", "Inconsolata")
+		        .style("font-size", "0.8vw")
+		        .style("font-weight", "bold");
+
+
+
 		}
 
 	</script>
