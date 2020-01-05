@@ -1,5 +1,14 @@
 <html>
 <head>
+	<!-- Global site tag (gtag.js) - Google Analytics -->
+	<script async src="https://www.googletagmanager.com/gtag/js?id=UA-155277311-1"></script>
+	<script>
+	  window.dataLayer = window.dataLayer || [];
+	  function gtag(){dataLayer.push(arguments);}
+	  gtag('js', new Date());
+
+	  gtag('config', 'UA-155277311-1');
+	</script>
 	<title>Sleep 2019 | Lesley Huang</title>
 	<meta charset="UTF-8">
 	<script src="https://d3js.org/d3.v5.min.js"></script>
@@ -352,7 +361,7 @@
 
 		const requestPieData = async () => {
 			sleepData = await d3.csv("sleep.csv");
-			console.log(sleepData);
+			// console.log(sleepData);
 			getHeatMapData(sleepData);
 			drawPie(sleepData.slice(23, 139), "#pie_spring", "sleep_spring");
 			drawPie(sleepData.slice(240, 355), "#pie_fall", "sleep_fall");
@@ -831,7 +840,7 @@
 			var mapWidth = 800;
 			var mapheight = 500; 
 			var gridSize = Math.floor((mapWidth-50) / 24) -2;
-			console.log(data);
+			// console.log(data);
 
 			var colorScale = d3.scaleSequential(d3.interpolateBlues)
 			  .domain([0, d3.max(data, function(d) {return d.total;})+10]);
@@ -960,7 +969,7 @@
 		    		.attr("class", "heatmap_box")
 		    		.attr("x", function(d, i) {
 		    			var range = getRangeOfTime(data.slice(i*24, (i+1)*24));
-		    			console.log(range);
+		    			// console.log(range);
 		    			return gridSize*range[0] - 2.5;
 		    		})
 		    		.attr("y", function(d, i) {
@@ -1273,7 +1282,7 @@
 	   			for (var j = 0; j < 24; j++) {
 	   				total += data[i*24 + j]["total"];
 	   			}
-	   			console.log(month + ": " + total);
+	   			// console.log(month + ": " + total);
 	   		}
 
 		}
