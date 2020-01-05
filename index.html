@@ -17,21 +17,23 @@
 		</div>
 
 		<div>
-			<h3 style="font-family: 'Inconsolata', monospace; font-size: 1.5vw;">Sleep by Day</h3>
-			<svg id="bar" height="575" width="1100"/>
+			<svg id="bar" height="625" width="1100"/>
 			<div style="margin-top: 20px; margin-bottom: 10px;">
-				<div id="stats" style="text-align: left; font-family: 'Montserrat', sans-serif; font-size: 0.8vw; display: inline-block; border: 1px solid #cdcdcd; border-radius: 5px; padding: 10px; opacity: 0;"></div>
+				<div id="stats" style="text-align: left; font-family: 'Montserrat', sans-serif; font-size: 0.8vw; display: inline-block; border: 1px solid #cdcdcd; border-radius: 5px; padding: 10px; margin-bottom: 10px; opacity: 0;"></div>
 			</div>
 		</div>
 
-		<div style="padding-top: 20px; padding-left: 150px;">
+		<div style="margin: 0 auto; width: 900; font-family: 'Montserrat', sans-serif; font-size: 0.8vw; text-align: left;">
+			<h3>Based on the heat map, it is evident that working a 9-5 job during the summer forced me to sleep earlier. I also woke up later during the spring because my first class of the day started after noon. Unfortunately, I didn't have the same luck in the fall where my earliest class started at 8:40am (never again 😭). </h3>
+			<h3>The ranges show the times where the probability of me being asleep is at least 50% (~15 days of the month). It's interesting to note that there are <b>no</b> time ranges where I am guaranteed to be asleep for 100% of that month and hour. </h3>
+		</div>
+
+		<div style="padding-top: 30px; padding-left: 150px;">
 			<svg id="heatMap" height="550" width="1050"/>
 		</div>
 
-		<div style="margin: 0 auto; width: 900; font-family: 'Montserrat', sans-serif; font-size: 0.8vw; text-align: left; padding-bottom: 20px">
-			<h3>I took very different classes during my spring and fall semesters at university. It's
-			interesting to see how my sleep schedule was more consistent in the spring and how I tried sleep earlier in the fall. 
-			You can also catch glimpses of when my sleep habits relapsed in fall, which causes the arcs to shift clockwise.</h3>
+		<div style="margin: 0 auto; width: 900; font-family: 'Montserrat', sans-serif; font-size: 0.8vw; text-align: left; ">
+			<h3>I took very different classes during my spring and fall semesters at university which, evidently, affected my sleep quite drastically. While I generally slept later in the spring, my sleep schedule was surprisingly more consistent. You can also catch glimpses of when my tendencies to sleep late relasped in the fall, which causes the arcs to shift clockwise.</h3>
 			<h3>The cycle represents a 24 hour clock and each ring represents a singular day, starting from the center and growing outwards.</h3>
 		</div>
 
@@ -290,7 +292,7 @@
 			var start, end;
 			for (var i = 0; i < data.length; i++) {
 				var total = data[i]["total"];
-				if (total >= 18) { // 50% of days
+				if (total >= 15) { // 50% of days
 					if (start == null) {
 						start = data[i]["time"];
 						end = start;
@@ -517,7 +519,15 @@
 
 			var y = d3.scaleLinear()
 				.domain([0, 24])
-				.range([0, 500-padding]);
+				.range([padding, 500-padding]);
+
+			d3.select("#bar")
+            	.append('text')
+            	.attr("transform", "translate(40, 40)")
+            	.text("Sleep by Day")
+            	.style("font-family", "Inconsolata")
+		        .style("font-size", "1.5vw")
+		        .style("font-weight", "bold");
 
 			// add bars for all nights 
 			var allNighterList = getAllNighters(sleepData);
@@ -563,7 +573,7 @@
 				.append('circle')
 				.attr('class', 'minmax')
 				.attr('cx', function(d) {return x(new Date(d.date))+0.75;}) // add offset of rect_width/2
-				.attr('cy', 500-padding)
+				.attr('cy', 500)
 				.attr('r', 5)
 		    	.style('stroke', '#cdcdcd')
 		    	.style('stroke-width', 2)
@@ -577,8 +587,8 @@
 		    	.attr('class', 'minmax')
 		    	.attr('x1', function(d) {return x(new Date(d.date))+0.75;}) // add offset of rect_width/2
 		    	.attr('x2', function(d) {return x(new Date(d.date))+0.75;}) // add offset of rect_width/2
-		    	.attr('y1', 500-padding+5)
-		    	.attr('y2', 500-padding+20)
+		    	.attr('y1', 500+5)
+		    	.attr('y2', 500+20)
 		    	.style('stroke', '#cdcdcd')
 		    	.style('stroke-width', 2)
 		    	.style('opacity', 0);
@@ -589,7 +599,7 @@
 		    	.append('text')
 		    	.attr('class', 'minmax')
 		    	.attr('x', function(d) {return x(new Date(d.date))-5;})
-		    	.attr('y', 500-padding+35)
+		    	.attr('y', 500+35)
 		    	.text(function(d) {
 		    		var date = new Date(d.date);
 		    		return monthNames[date.getMonth()] + " " + date.getDate() + ": " + calculateTotalHours(d.times) + " hours slept";
@@ -603,7 +613,7 @@
 			d3.select('#bar')
 				.append("g")
 		        .attr("class", "x_axis")
-		        .attr("transform", "translate(0, 45)")
+		        .attr("transform", "translate(0," + (45+padding) +")")
 		        .call(d3.axisTop(x).tickFormat(d3.timeFormat("%b")).ticks(8))
 		        .style("font-family", "Inconsolata")
 		        .style("font-size", "0.8vw")
@@ -621,7 +631,7 @@
 
 		    d3.select("#bar")
             	.append('text')
-            	.attr('transform', "translate(" + 1090 + ", " + 45 + "), rotate(90)") // make sure to edit these values
+            	.attr('transform', "translate(" + 1090 + ", " + (45+padding) + "), rotate(90)") // make sure to edit these values
             	.text("time 🠒")
             	.style("font-family", "Inconsolata")
 		        .style("font-size", "0.8vw")
@@ -640,7 +650,7 @@
 		    	.append('circle')
 		    	.attr('id', function(d, i) { return "key_" + i;})
 		    	.attr('cx', function(d, i) { return 435 + i*100;})
-		    	.attr('cy', 515)
+		    	.attr('cy', 515 + padding)
 		    	.attr('r', 8)
 		    	.style('fill', '#f8f8f8')
 		    	.style('stroke', '#cdcdcd')
@@ -733,7 +743,7 @@
 		    	.enter()
 		    	.append('text')
 		    	.attr('x', function(d, i) { return 450 + i*100;})
-		    	.attr('y', 519)
+		    	.attr('y', 519+padding)
 		    	.text(function(d) {return d;})
 		    	.style("font-family", "Montserrat")
 		    	.style("font-weight", "bold")
@@ -757,8 +767,8 @@
 		    	// window for bar chart
 		    	if (d3.event.clientX - offset.x > padding
 		    		&& d3.event.clientX - offset.x <= 1100-padding-17
-		    		&& d3.event.clientY - offset.y > 50 
-		    		&& d3.event.clientY - offset.y < 500) {
+		    		&& d3.event.clientY - offset.y > 50 + padding 
+		    		&& d3.event.clientY - offset.y < 500 + padding) {
 		    		var tempDate = x.invert(d3.event.clientX - offset.x);
 				// console.log(tempDate);
 				d3.selectAll(".main_bars").transition()
@@ -970,9 +980,9 @@
 
 			heatMapSvg.append("text")
 				.attr("id", "heatmap_range_text")
-				.attr("x", gridSize*5.5)
+				.attr("x", gridSize*3.5)
 				.attr("y", gridSize*14.5+10)
-				.text("* The ranges represent times that I've been asleep for at least 18 hours.")
+				.text("* The ranges represent times that I've been asleep for at least 15 hours that month.")
 				.attr("font-family", "Montserrat")
 				.attr("font-weight", "bold")
 				.attr("font-size", "0.8vw")
@@ -1043,20 +1053,20 @@
 				.style("opacity", 0);
 			heatMapSvg.append('g')
             	.attr("class", "heatmap_notes_text")
-            	.attr("transform", "translate(" + (gridSize*2.5) + ", " + (gridSize/2 - 2.5) + ")")
+            	.attr("transform", "translate(" + (gridSize*1.5) + ", " + (gridSize/2 - 2.5) + ")")
                 .call(d3.axisRight(d3.scaleLinear().domain([]).range([gridSize*2, gridSize*12])).ticks(2).tickFormat("").tickSize(gridSize*4))
                 .style("opacity", 0);
             heatMapSvg.append('path')
             	.attr("class", "heatmap_notes_text")
-            	.attr("transform", "translate(" + (gridSize*6.5 - 1) + ", " + (gridSize/2 -2) + ")")
+            	.attr("transform", "translate(" + (gridSize*5.5 - 1) + ", " + (gridSize/2 -2) + ")")
             	.style("stroke", "black")
             	.attr('d', ("M"+ (1) +"," + (gridSize*12) + "H" + (gridSize)).toString())
             	.style("opacity", 0);
             heatMapSvg.append("text")
             	.attr("class", "heatmap_notes_text")
-            	.attr("x", gridSize*8 - 2.5)
+            	.attr("x", gridSize*6.5 + 5)
             	.attr("y", gridSize*12 + 17)	
-				.text("Slept the latest in March... 🤔")
+				.text("I slept the latest in March...must be due to the winter weather 🤔")
 				.attr("font-family", "Montserrat")
 				.attr("font-weight", "bold")
 				.attr("font-size", "0.8vw")
