@@ -25,7 +25,7 @@
 		</div>
 
 		<div style="padding-top: 20px; padding-left: 150px;">
-			<svg id="heatMap" height="550" width="1000"/>
+			<svg id="heatMap" height="550" width="1050"/>
 		</div>
 
 		<div style="margin: 0 auto; width: 900; font-family: 'Montserrat', sans-serif; font-size: 0.8vw; text-align: left; padding-bottom: 20px">
@@ -290,7 +290,7 @@
 			var start, end;
 			for (var i = 0; i < data.length; i++) {
 				var total = data[i]["total"];
-				if (total >= 18) { // 75% of days
+				if (total >= 18) { // 50% of days
 					if (start == null) {
 						start = data[i]["time"];
 						end = start;
@@ -927,7 +927,7 @@
 
 		    d3.select("#heatMap")
             	.append('g')
-            	.attr("class", "y_axis")
+            	.attr("class", "x_axis")
             	.attr("transform", "translate(70, 95)")
                 .call(d3.axisTop(x).tickFormat(function(d) { return d + ":00"}).ticks(12))
 		        .style("font-family", "Inconsolata")
@@ -970,18 +970,18 @@
 
 			heatMapSvg.append("text")
 				.attr("id", "heatmap_range_text")
-				.attr("x", 100)
+				.attr("x", gridSize*5.5)
 				.attr("y", gridSize*14.5+10)
-				.text("* The ranges represent times that I've been asleep for at least 75% of the month.")
+				.text("* The ranges represent times that I've been asleep for at least 18 hours.")
 				.attr("font-family", "Montserrat")
 				.attr("font-weight", "bold")
 				.attr("font-size", "0.8vw")
 				.attr("opacity", 0);
 
-			// added tooltip for summer
+			// added tooltip for notes
 			heatMapSvg.append('g')
             	.attr("class", "heatmap_notes_text")
-            	.attr("transform", "translate(" + (gridSize*24 + 5) + ", " + (gridSize/2) + ")")
+            	.attr("transform", "translate(" + (gridSize*24 + 5) + ", " + (gridSize/2 - 2.5) + ")")
                 .call(d3.axisLeft(d3.scaleLinear().domain([]).range([gridSize*5, gridSize*7])).ticks(2).tickFormat(""))
                 .style("opacity", 0);
             heatMapSvg.append("text")
@@ -997,7 +997,66 @@
 				.attr("class", "heatmap_notes_text")
             	.attr("x", gridSize*24 + 15)
             	.attr("y", gridSize*6 + 25)	
-				.text("during the summer time")
+				.text("during the summer for work")
+				.attr("font-family", "Montserrat")
+				.attr("font-weight", "bold")
+				.attr("font-size", "0.8vw")
+				.style("opacity", 0);
+			heatMapSvg.append('g')
+            	.attr("class", "heatmap_notes_text")
+            	.attr("transform", "translate(" + (gridSize*11 + 6) + ", " + (gridSize/2 - 2.5) + ")")
+                .call(d3.axisLeft(d3.scaleLinear().domain([]).range([gridSize*1, gridSize*3])).ticks(2).tickFormat(""))
+                .style("opacity", 0);
+            heatMapSvg.append('g')
+            	.attr("class", "heatmap_notes_text")
+            	.attr("transform", "translate(" + (gridSize*11 + 6) + ", " + (gridSize/2 - 2.5) + ")")
+                .call(d3.axisLeft(d3.scaleLinear().domain([]).range([gridSize*8, gridSize*10])).ticks(2).tickFormat(""))
+                .style("opacity", 0);
+            heatMapSvg.append('g')
+            	.attr("class", "heatmap_notes_text")
+            	.attr("transform", "translate(" + (gridSize*11 + 12) + ", " + (gridSize/2 - 2.5) + ")")
+                .call(d3.axisLeft(d3.scaleLinear().domain([]).range([gridSize*2, gridSize*9])).ticks(2).tickFormat(""))
+                .style("opacity", 0);
+            heatMapSvg.append('path')
+            	.attr("class", "heatmap_notes_text")
+            	.attr("transform", "translate(" + (gridSize*11 + 13) + ", " + (gridSize/2 -2) + ")")
+            	.style("stroke", "black")
+            	.attr('d', ("M"+(gridSize*9) +"," + (gridSize*9) + "H" + (gridSize*12.75) + "," + 0).toString())
+            	.style("opacity", 0);
+            heatMapSvg.append("text")
+            	.attr("class", "heatmap_notes_text")
+            	.attr("x", gridSize*24 + 15)
+            	.attr("y", gridSize*9 + 10)	
+				.text("I woke up much later during the spring")
+				.attr("font-family", "Montserrat")
+				.attr("font-weight", "bold")
+				.attr("font-size", "0.8vw")
+				.style("opacity", 0);
+			heatMapSvg.append("text")
+            	.attr("class", "heatmap_notes_text")
+            	.attr("x", gridSize*24 + 15)
+            	.attr("y", gridSize*9 + 25)	
+				.text("semester compared to the fall")
+				.attr("font-family", "Montserrat")
+				.attr("font-weight", "bold")
+				.attr("font-size", "0.8vw")
+				.style("opacity", 0);
+			heatMapSvg.append('g')
+            	.attr("class", "heatmap_notes_text")
+            	.attr("transform", "translate(" + (gridSize*2.5) + ", " + (gridSize/2 - 2.5) + ")")
+                .call(d3.axisRight(d3.scaleLinear().domain([]).range([gridSize*2, gridSize*12])).ticks(2).tickFormat("").tickSize(gridSize*4))
+                .style("opacity", 0);
+            heatMapSvg.append('path')
+            	.attr("class", "heatmap_notes_text")
+            	.attr("transform", "translate(" + (gridSize*6.5 - 1) + ", " + (gridSize/2 -2) + ")")
+            	.style("stroke", "black")
+            	.attr('d', ("M"+ (1) +"," + (gridSize*12) + "H" + (gridSize)).toString())
+            	.style("opacity", 0);
+            heatMapSvg.append("text")
+            	.attr("class", "heatmap_notes_text")
+            	.attr("x", gridSize*8 - 2.5)
+            	.attr("y", gridSize*12 + 17)	
+				.text("Slept the latest in March... 🤔")
 				.attr("font-family", "Montserrat")
 				.attr("font-weight", "bold")
 				.attr("font-size", "0.8vw")
@@ -1007,7 +1066,7 @@
 			var minMax = getHMMaxMin(data);
 			heatMapSvg.append('g')
             	.attr("class", "heatmap_mm_text")
-            	.attr("transform", "translate(" + (gridSize*24 + 5) + ", " + (gridSize/2) + ")")
+            	.attr("transform", "translate(" + (gridSize*24 + 5) + ", " + (gridSize/2 - 2.5) + ")")
                 .call(
                 	d3.axisLeft(
 	                	d3.scaleLinear()
@@ -1018,7 +1077,6 @@
                 ).style("opacity", 0)
                 .select(".domain").remove();
             heatMapSvg.append("rect")
-            	.attr("class", "heatmap_mm_text")
                 .attr("x", gridSize*24 - 5)
                 .attr("y", gridSize*4)
                 .attr("width", 20)
@@ -1122,6 +1180,20 @@
 			    				.transition()
 			    				.duration(700)
 			    				.style("opacity", 1);
+
+			    			if (isHMMinmax) {
+			    				d3.select('#heatmap_key_1')
+				    				.transition()
+				    				.duration(500)
+				    				.style('fill', '#f8f8f8');
+
+			    				d3.selectAll(".heatmap_mm_text")
+				    				.transition()
+				    				.duration(500)
+				    				.style("opacity", 0);
+
+			    				isHMMinmax = false;
+			    			}
 			    		} else {
 			    			d3.select('#heatmap_key_2')
 			    				.transition()
@@ -1145,6 +1217,20 @@
 			    				.transition()
 			    				.duration(700)
 			    				.style("opacity", 1);
+
+			    			if (isHMNotes) {
+			    				d3.select('#heatmap_key_2')
+				    				.transition()
+				    				.duration(500)
+				    				.style('fill', '#f8f8f8');
+
+			    				d3.selectAll(".heatmap_notes_text")
+				    				.transition()
+				    				.duration(500)
+				    				.style("opacity", 0);
+
+			    				isHMNotes = false;
+			    			}
 		    			} else {
 		    				d3.select('#heatmap_key_1')
 			    				.transition()
