@@ -7,7 +7,7 @@
 	<link href="https://fonts.googleapis.com/css?family=Inconsolata&display=swap" rel="stylesheet">
 	<link href="https://fonts.googleapis.com/css?family=Montserrat:200,200i&display=swap" rel="stylesheet">
 </head>
-<body bgcolor= "#f8f8f8" style="display: flex; flex-direction: column; text-align: center; margin-bottom: 20px;">
+<body bgcolor= "#fbfbfb" style="display: flex; flex-direction: column; text-align: center; margin-bottom: 20px;">
 		<h2 style="font-family: 'Inconsolata', monospace; padding-top: 50px; font-size: 40px;">Sleep patterns of 2019</h2>
 		<div style="margin: 0 auto; width: 900; font-family: 'Montserrat', sans-serif; font-size: 0.8vw; text-align: left;">
 			<h3>I started collecting data on my sleep habits about 3 years ago when I noticed that my sleep schedule was becoming increasingly
@@ -652,7 +652,7 @@
 		    	.attr('cx', function(d, i) { return 435 + i*100;})
 		    	.attr('cy', 515 + padding)
 		    	.attr('r', 8)
-		    	.style('fill', '#f8f8f8')
+		    	.style('fill', '#fbfbfb')
 		    	.style('stroke', '#cdcdcd')
 		    	.style('stroke-width', 2)
 		    	.on('click', function (d, i) {
@@ -680,7 +680,7 @@
 		    				var circle = d3.select('#key_0')
 		    				.transition()
 		    				.duration(500)
-		    				.style('fill', '#f8f8f8');
+		    				.style('fill', '#fbfbfb');
 		    			}
 		    			
 		    		} else if (d == "min / max") {
@@ -707,7 +707,7 @@
 		    				var circle = d3.select('#key_1')
 		    				.transition()
 		    				.duration(500)
-		    				.style('fill', '#f8f8f8');
+		    				.style('fill', '#fbfbfb');
 		    			}
 		    		} else if (d == "stats") {
 						if (!isStats) {
@@ -733,7 +733,7 @@
 		    				var circle = d3.select('#key_2')
 		    				.transition()
 		    				.duration(500)
-		    				.style('fill', '#f8f8f8');
+		    				.style('fill', '#fbfbfb');
 		    			}		    		
 		    		}
 		    	});
@@ -757,7 +757,7 @@
 				.style("z-index", "10")
 				.style("visibility", "hidden")
 				.attr("white-space", "pre-line")
-				.style("background-color", "#f8f8f8")
+				.style("background-color", "#fbfbfb")
 				.style("border-radius", "5px")
 				.style("border", "1px solid #cdcdcd");
 
@@ -848,7 +848,7 @@
 				.style("z-index", "10")
 				.style("visibility", "hidden")
 				.attr("white-space", "pre-line")
-				.style("background-color", "#f8f8f8")
+				.style("background-color", "#fbfbfb")
 				.style("border-radius", "5px")
 				.style("border", "1px solid #cdcdcd");
 
@@ -1091,7 +1091,7 @@
                 .attr("y", gridSize*4)
                 .attr("width", 20)
                 .attr("height", 20)
-                .style("fill", "#f8f8f8");
+                .style("fill", "#fbfbfb");
             heatMapSvg.append("text")
             	.attr("class", "heatmap_mm_text")
             	.attr("x", gridSize*24 + 15)
@@ -1141,7 +1141,7 @@
 		    	.attr('cx', function(d, i) { return 235 + i*110;})
 		    	.attr('cy', gridSize*13.5)
 		    	.attr('r', 8)
-		    	.style('fill', '#f8f8f8')
+		    	.style('fill', '#fbfbfb')
 		    	.style('stroke', '#cdcdcd')
 		    	.style('stroke-width', 2)
 		    	.on('click', function (d, i) {
@@ -1166,7 +1166,7 @@
 			    			d3.select('#heatmap_key_0')
 			    				.transition()
 			    				.duration(500)
-			    				.style('fill', '#f8f8f8');
+			    				.style('fill', '#fbfbfb');
 
 			    			d3.select("#heatmap_range_text")
 			    				.transition()
@@ -1195,7 +1195,7 @@
 			    				d3.select('#heatmap_key_1')
 				    				.transition()
 				    				.duration(500)
-				    				.style('fill', '#f8f8f8');
+				    				.style('fill', '#fbfbfb');
 
 			    				d3.selectAll(".heatmap_mm_text")
 				    				.transition()
@@ -1208,7 +1208,7 @@
 			    			d3.select('#heatmap_key_2')
 			    				.transition()
 			    				.duration(500)
-			    				.style('fill', '#f8f8f8');
+			    				.style('fill', '#fbfbfb');
 
 			    			d3.selectAll(".heatmap_notes_text")
 			    				.transition()
@@ -1232,7 +1232,7 @@
 			    				d3.select('#heatmap_key_2')
 				    				.transition()
 				    				.duration(500)
-				    				.style('fill', '#f8f8f8');
+				    				.style('fill', '#fbfbfb');
 
 			    				d3.selectAll(".heatmap_notes_text")
 				    				.transition()
@@ -1245,7 +1245,7 @@
 		    				d3.select('#heatmap_key_1')
 			    				.transition()
 			    				.duration(500)
-			    				.style('fill', '#f8f8f8');
+			    				.style('fill', '#fbfbfb');
 
 			    			d3.selectAll(".heatmap_mm_text")
 			    				.transition()
