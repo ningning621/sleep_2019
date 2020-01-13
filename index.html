@@ -528,7 +528,7 @@
 
 			var y = d3.scaleLinear()
 				.domain([0, 24])
-				.range([padding, 500-padding]);
+				.range([padding, 500]);
 
 			d3.select("#bar")
             	.append('text')
@@ -570,7 +570,8 @@
 				})
 				.attr("width", 1.5)
 				.attr("height", function(d, i) {
-					return y(d.time[1] - d.time[0]);
+					// console.log((d.time[1] - d.time[0]))
+					return y(d.time[1]) - y(d.time[0]);
 				})
 				.attr("fill", "#7DB8E8");
 
@@ -1075,7 +1076,7 @@
             	.attr("class", "heatmap_notes_text")
             	.attr("x", gridSize*6.5 + 5)
             	.attr("y", gridSize*12 + 17)	
-				.text("I slept the latest in March...must be due to the winter weather 🤔")
+				.text("I slept the latest in March...must have been due to the winter weather 🤔")
 				.attr("font-family", "Montserrat")
 				.attr("font-weight", "bold")
 				.attr("font-size", "0.8vw")
@@ -1319,6 +1320,6 @@
 	</script>
 </body>
 <footer style="margin-top: 40px">
-	<h3 style="font-family: 'Montserrat', sans-serif; font-size: 0.8vw;">made with 💖 and 🍵 by lesley huang</h3>
+	<h3 style="font-family: 'Montserrat', sans-serif; font-size: 0.8vw;">made with 💖 and 🍵 by <a href="https://www.linkedin.com/in/lesley-huang-48400/">lesley huang</a></h3>
 </footer>
 </html>  
