@@ -1132,7 +1132,7 @@
 
 			
 			// adding key for bar chart
-		    let key = ["show ranges", "min / max", "notes"];
+		    let key = ["show ranges", "min / max", "insights"];
 
 		    heatMapSvg.selectAll('.key')
 				.data(key)
@@ -1180,7 +1180,7 @@
 			    				.style('opacity', 0);
 			    		}
 			    		isHMStats = !isHMStats;
-		    		} else if (d == "notes") {
+		    		} else if (d == "insights") {
 						if (!isHMNotes) {
 		    				d3.select('#heatmap_key_2')
 			    				.transition()
